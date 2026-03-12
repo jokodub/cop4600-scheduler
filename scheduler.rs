@@ -91,10 +91,11 @@ fn print_header(cfg: &Config) {
     println!("{} processes", cfg.process_count);
 
     match cfg.algorithm {
-        Algorithm::FCFS => println!("Using First Come First Served"),
+        Algorithm::FCFS => println!("Using First-Come First-Served"),
         Algorithm::RR => {
-            println!("Using Round Robin");
+            println!("Using Round-Robin");
             println!("Quantum {}", cfg.quantum);
+            println!();
         }
         Algorithm::SJF => println!("Using preemptive Shortest Job First"),
     }
