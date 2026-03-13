@@ -4,6 +4,6 @@ use fcfs	# Can be fcfs, sjf, or rr
 process name P1 arrival 7 burst 5
 process name P2 arrival 0 burst 9
 process name P3 arrival 9 burst 3
-process name P4 arrival 8 burst 4
+process name P4 arrival 88888 burst 4
 process name P5 arrival 11 burst 1
 end

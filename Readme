@@ -1,3 +1,55 @@
 Put compile, then use the tester.py. I think tester.py should tell you args when you run it with none.
 
 [conversation](https://chatgpt.com/share/69b263d6-42dc-800c-8cca-166b550efafb)
+
+# GPT Scheduler Evaluation
+## 1. Correctness
+The code functions exactly as expected, passing all test cases given by the professor. 
+
+## 2. Efficiency
+The code is very inefficient the order of if/else blocks the tick loops. 
+
+For example, first it has a code block which is like: 
+```rust
+if let Some(p) = current
+{
+	println!("Process 1)");
+}
+
+if current.is_none()
+{
+	choose_process_to_run_next();
+}
+```
+
+We could clearly use an else statement here. I suspect that it is formatted like this because originally all the algorithms were in one function, before a last prompt requesting that they be broken up.
+
+Beyond that the code is efficient in use of reasonable amount of one-liners, and using encouraged rust conventions.
+
+## 3. Readability
+The code is completely uncommented, and the variable names are not very useful, being named things such as `current`. The only boon to this category is that it does use certain reccomended rust conventions, such as avoiding unpacking.
+
+## 4. Completeness
+The code is not able to handle improperly formatted files. If they are not, the the program has unpredictable behavior. For example, not providing a number on the `runfor` line mean that it simulates 0 ticks. 
+
+If a process does not arrive, it misleading says that the process did not finish, when it would be more correct to say that the process did not arrive before the simulation ended.
+
+## 5. Learning assistance
+I did not have any knowledge of rust during the creation and prompting of this program. When reviewing the code for this write up I had assistance from a friend in understanding some syntax, but for the creation of the program simply having knowledge of debugging was sufficient to correct ChatGPT
+
+
+## 6. Final thoughts
+
+Past personal experience using AI is that asking it to correct something has a tendency for it to reformat the entire program for a simple fix. I did not experience this but my paranoia lead me to asking for snippets that I could use to patch the code instead of GPT regenerating the program. The few times that I did as for a full-reproduction there was a strong coherence between previous and current revisions, leading me to find GPT to be much more useful that I would have a couple of years ago.
+
+This program works, but there is no documentation, no commenting, bad logic practices (not using if-else correctly). Not knowing rust I had no control over the maintainability of the program.
+
+Overall, the maintainablility and readability seems not to matter since GPT was proficient at translating me saying "hey this thing doesnt work" into a patch that worked without introducing new bugs. 
+
+However, in order to ensure I obtained specific changes I would take the time to understand the issue and describe it, rather than just pasting failed test cases, the differences, and asking AI to fix it. 
+
+At one point it suggests an event driven scheduler, which goes way outside of scope since event driven would introduce more race conditions and classes and things that do not exist at the low level of a CPU scheduler. I found that AI had lots of tips and information that i generally did not care to read
+
+Overall, prompting was pretty easy since after about 2 messages I obtained code that obtained correct results, just not quite formatted correctly. Getting it to correct the code was also simple, and the results were consistent from one prompt to next. I only manually changed a couple of print statements, where it was easier to just add a dash then asking AI to add one.
+
+
