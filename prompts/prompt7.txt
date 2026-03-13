@@ -1,0 +1,183 @@
+# Engineer Prompt 7 — Final Event Ordering Fix (ALL Algorithms) + Documentation Preservation
+
+This is the **final iteration before submission**.
+
+Two problems remain:
+
+1. **Event ordering bug** (finish events appearing before arrivals)
+2. **Documentation regression** (comments disappearing in later revisions)
+
+If this pass fails, the human team will have to manually modify the code, which we want to avoid.
+Therefore **do not remove any existing comments**, and add missing ones carefully.
+
+---
+
+# Part 1 — Fix Event Ordering (Root Cause)
+
+Currently finish events are printed using `time + 1` at the **end of the loop**.
+
+Because of this, a finish event may be printed **before arrival events that occur at the same tick**.
+
+Example incorrect ordering:
+
+```
+Time 5 : P1 finished
+Time 5 : P2 arrived
+```
+
+Correct ordering must always be:
+
+```
+Time 5 : P2 arrived
+Time 5 : P1 finished
+```
+
+---
+
+# Correct Event Order Per Tick
+
+At the start of each tick, the scheduler must process events in this order:
+
+```
+1) Print new arrivals
+2) Print finish events
+3) Perform scheduling decisions
+4) Execute the CPU for the tick
+```
+
+---
+
+# Required Structural Change
+
+Move the **finish detection logic** so it executes **immediately after arrival handling**.
+
+Instead of printing the finish event when it occurs at the end of the previous tick, store that state and print it at the **beginning of the next loop iteration**.
+
+This guarantees:
+
+```
+arrivals -> finishes -> scheduling
+```
+
+---
+
+# IMPORTANT
+
+Make this **exact same change** in all three scheduling algorithms:
+
+```
+simulate_fcfs
+simulate_sjf
+simulate_rr
+```
+
+Even if FCFS and SJF appear correct, the event ordering rule must be **consistent across all schedulers**.
+
+---
+
+# Part 2 — Round-Robin Queue Ordering
+
+Ensure the following ordering inside Round-Robin:
+
+```
+1) arrivals are added to ready queue
+2) finished processes are handled
+3) quantum expiration requeues the running process
+4) scheduler selects next process
+```
+
+The key rule:
+
+```
+new arrivals must enter the queue before a preempted process is requeued
+```
+
+This fixes the observed cases where:
+
+```
+P7 is selected before P6
+```
+
+when P6 actually arrived earlier.
+
+---
+
+# Part 3 — Preserve and Restore Documentation
+
+The project currently has **good comments**, but they disappear when revisions are made.
+
+Do **not delete any existing comments**.
+
+Specifically ensure header comments exist for:
+
+```
+simulate_fcfs
+simulate_sjf
+simulate_rr
+finalize_metrics
+print_summary
+main
+```
+
+Each header should explain:
+
+* the purpose of the function
+* the scheduling behavior
+* any important algorithm rules
+
+---
+
+# Part 4 — Add One Comment Explaining the Event Ordering Fix
+
+Where you move the finish check, add a comment explaining **why the change was necessary**.
+
+Example idea:
+
+```
+// Finish events are printed at the start of the next tick rather than
+// immediately when the burst reaches zero. This ensures arrival events
+// for that same time unit appear first, matching the simulator spec.
+```
+
+---
+
+# Part 5 — Do NOT Remove Comments
+
+Important rule for this revision:
+
+```
+Do not remove any existing comments.
+Only add comments where missing.
+```
+
+The human reviewers specifically requested strong documentation, and this is the final opportunity before submission.
+
+---
+
+# Part 6 — Do NOT Change Anything Else
+
+Do **not modify**:
+
+* metric calculations
+* event formatting
+* scheduling policies
+* queue data structures
+* file output logic
+
+Only adjust:
+
+* finish event timing
+* RR queue ordering if necessary
+* documentation preservation
+
+---
+
+# Final Output
+
+Return the **complete `main.rs` file** with:
+
+* corrected event ordering
+* preserved comments
+* consistent scheduling behavior across algorithms.
+
+This should represent the **final submission-ready implementation**.

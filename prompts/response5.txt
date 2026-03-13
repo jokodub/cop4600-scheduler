@@ -1,0 +1,295 @@
+It removed the header comments on the simulations again.
+
+Add an allow dead_code tag on the Algorithm::to_str function so cargo does not warn. Keep the function, it's good to have implemented.
+
+FCFS is perfect.
+SJF is perfect.
+Something seems wrong with RR. On any given tick, print the new arrivals first then whatever process finished. 
+Also there are some discrepencies in which process to choose after an interrupt. It seems like some selections are backwards (P7 before P6, solution says P6 before P7)
+Analyze these to determine what might be going wrong.
+---
+```c2-rr.out
+2 processes
+Using Round-Robin
+Quantum 2
+Time 0 : P2 arrived
+Time 0 : P2 selected (burst 9)
+Time 2 : P2 selected (burst 7)
+Time 3 : P1 arrived
+Time 4 : P1 selected (burst 5)
+Time 6 : P2 selected (burst 5)
+Time 8 : P1 selected (burst 3)
+Time 10 : P2 selected (burst 3)
+Time 12 : P1 selected (burst 1)
+Time 13 : P1 finished
+Time 13 : P2 selected (burst 1)
+Time 14 : P2 finished
+Time 14 : Idle
+Finished at time 15
+P1 wait 5 turnaround 10 response 1
+P2 wait 5 turnaround 14 response 0
+```
+```c2-rr.sol
+  2 processes
+Using Round-Robin
+Quantum   2
+
+Time   0 : P2 arrived
+Time   0 : P2 selected (burst   9)
+Time   2 : P2 selected (burst   7)
+Time   3 : P1 arrived
+Time   4 : P1 selected (burst   5)
+Time   6 : P2 selected (burst   5)
+Time   8 : P1 selected (burst   3)
+Time  10 : P2 selected (burst   3)
+Time  12 : P1 selected (burst   1)
+Time  13 : P1 finished
+Time  13 : P2 selected (burst   1)
+Time  14 : P2 finished
+Time  14 : Idle
+Finished at time  15
+
+P1 wait   5 turnaround  10 response   1
+P2 wait   5 turnaround  14 response   0
+```
+---
+```c5-rr.out
+5 processes
+Using Round-Robin
+Quantum 3
+Time 0 : P1 arrived
+Time 0 : P1 selected (burst 5)
+Time 2 : P2 arrived
+Time 3 : P2 selected (burst 9)
+Time 6 : P1 selected (burst 2)
+Time 8 : P1 finished
+Time 8 : P2 selected (burst 6)
+Time 9 : P3 arrived
+Time 11 : P5 arrived
+Time 11 : P3 selected (burst 3)
+Time 14 : P3 finished
+Time 14 : P4 arrived
+Time 14 : P2 selected (burst 3)
+Time 17 : P2 finished
+Time 17 : P5 selected (burst 1)
+Time 18 : P5 finished
+Time 18 : P4 selected (burst 4)
+Time 21 : P4 selected (burst 1)
+Time 22 : P4 finished
+Time 22 : Idle
+Time 23 : Idle
+Time 24 : Idle
+Finished at time 25
+P1 wait 3 turnaround 8 response 0
+P2 wait 6 turnaround 15 response 1
+P3 wait 2 turnaround 5 response 2
+P4 wait 4 turnaround 8 response 4
+P5 wait 6 turnaround 7 response 6
+```
+```c5-rr.sol
+  5 processes
+Using Round-Robin
+Quantum   3
+
+Time   0 : P1 arrived
+Time   0 : P1 selected (burst   5)
+Time   2 : P2 arrived
+Time   3 : P2 selected (burst   9)
+Time   6 : P1 selected (burst   2)
+Time   8 : P1 finished
+Time   8 : P2 selected (burst   6)
+Time   9 : P3 arrived
+Time  11 : P5 arrived
+Time  11 : P3 selected (burst   3)
+Time  14 : P4 arrived
+Time  14 : P3 finished
+Time  14 : P5 selected (burst   1)
+Time  15 : P5 finished
+Time  15 : P2 selected (burst   3)
+Time  18 : P2 finished
+Time  18 : P4 selected (burst   4)
+Time  21 : P4 selected (burst   1)
+Time  22 : P4 finished
+Time  22 : Idle
+Time  23 : Idle
+Time  24 : Idle
+Finished at time  25
+
+P1 wait   3 turnaround   8 response   0
+P2 wait   7 turnaround  16 response   1
+P3 wait   2 turnaround   5 response   2
+P4 wait   4 turnaround   8 response   4
+P5 wait   3 turnaround   4 response   3
+```
+---
+```c10-rr.out
+10 processes
+Using Round-Robin
+Quantum 3
+Time 0 : P01 arrived
+Time 0 : P01 selected (burst 5)
+Time 3 : P01 selected (burst 2)
+Time 5 : P01 finished
+Time 5 : P02 arrived
+Time 5 : P02 selected (burst 9)
+Time 7 : P03 arrived
+Time 8 : P03 selected (burst 3)
+Time 9 : P04 arrived
+Time 10 : P05 arrived
+Time 11 : P03 finished
+Time 11 : P02 selected (burst 6)
+Time 12 : P07 arrived
+Time 14 : P04 selected (burst 4)
+Time 17 : P05 selected (burst 8)
+Time 20 : P07 selected (burst 5)
+Time 23 : P06 arrived
+Time 23 : P02 selected (burst 3)
+Time 25 : P08 arrived
+Time 26 : P02 finished
+Time 26 : P04 selected (burst 1)
+Time 27 : P04 finished
+Time 27 : P05 selected (burst 5)
+Time 30 : P09 arrived
+Time 30 : P07 selected (burst 2)
+Time 32 : P07 finished
+Time 32 : P06 selected (burst 4)
+Time 34 : P10 arrived
+Time 35 : P08 selected (burst 4)
+Time 38 : P05 selected (burst 2)
+Time 40 : P05 finished
+Time 40 : P09 selected (burst 7)
+Time 43 : P10 selected (burst 10)
+Time 46 : P06 selected (burst 1)
+Time 47 : P06 finished
+Time 47 : P08 selected (burst 1)
+Time 48 : P08 finished
+Time 48 : P09 selected (burst 4)
+Time 51 : P10 selected (burst 7)
+Time 54 : P09 selected (burst 1)
+Time 55 : P09 finished
+Time 55 : P10 selected (burst 4)
+Time 58 : P10 selected (burst 1)
+Time 59 : P10 finished
+Time 59 : Idle
+Finished at time 60
+P01 wait 0 turnaround 5 response 0
+P02 wait 12 turnaround 21 response 0
+P03 wait 1 turnaround 4 response 1
+P04 wait 14 turnaround 18 response 5
+P05 wait 22 turnaround 30 response 7
+P06 wait 20 turnaround 24 response 9
+P07 wait 15 turnaround 20 response 8
+P08 wait 19 turnaround 23 response 10
+P09 wait 18 turnaround 25 response 10
+P10 wait 15 turnaround 25 response 9
+```
+```c10-rr.sol
+ 10 processes
+Using Round-Robin
+Quantum   3
+
+Time   0 : P01 arrived
+Time   0 : P01 selected (burst   5)
+Time   3 : P01 selected (burst   2)
+Time   5 : P02 arrived
+Time   5 : P01 finished
+Time   5 : P02 selected (burst   9)
+Time   7 : P03 arrived
+Time   8 : P03 selected (burst   3)
+Time   9 : P04 arrived
+Time  10 : P05 arrived
+Time  11 : P03 finished
+Time  11 : P02 selected (burst   6)
+Time  12 : P07 arrived
+Time  14 : P04 selected (burst   4)
+Time  17 : P05 selected (burst   8)
+Time  20 : P07 selected (burst   5)
+Time  23 : P06 arrived
+Time  23 : P02 selected (burst   3)
+Time  25 : P08 arrived
+Time  26 : P02 finished
+Time  26 : P04 selected (burst   1)
+Time  27 : P04 finished
+Time  27 : P05 selected (burst   5)
+Time  30 : P09 arrived
+Time  30 : P06 selected (burst   4)
+Time  33 : P07 selected (burst   2)
+Time  34 : P10 arrived
+Time  35 : P07 finished
+Time  35 : P08 selected (burst   4)
+Time  38 : P09 selected (burst   7)
+Time  41 : P05 selected (burst   2)
+Time  43 : P05 finished
+Time  43 : P06 selected (burst   1)
+Time  44 : P06 finished
+Time  44 : P10 selected (burst  10)
+Time  47 : P08 selected (burst   1)
+Time  48 : P08 finished
+Time  48 : P09 selected (burst   4)
+Time  51 : P10 selected (burst   7)
+Time  54 : P09 selected (burst   1)
+Time  55 : P09 finished
+Time  55 : P10 selected (burst   4)
+Time  58 : P10 selected (burst   1)
+Time  59 : P10 finished
+Time  59 : Idle
+Finished at time  60
+
+P01 wait   0 turnaround   5 response   0
+P02 wait  12 turnaround  21 response   0
+P03 wait   1 turnaround   4 response   1
+P04 wait  14 turnaround  18 response   5
+P05 wait  25 turnaround  33 response   7
+P06 wait  17 turnaround  21 response   7
+P07 wait  18 turnaround  23 response   8
+P08 wait  19 turnaround  23 response  10
+P09 wait  18 turnaround  25 response   8
+P10 wait  15 turnaround  25 response  10
+```
+
+There are some strange differences on the solution key's part. You do not need to right-justify numbers, it is not part of the rubric. The only thing I would change is adding a newline before the simulation begins (after using/quantum) and another before the summary prints.
+Program output:
+```
+2 processes
+Using First-Come First-Served
+Time 0 : P1 arrived
+Time 0 : P1 selected (burst 5)
+Time 5 : P1 finished
+Time 5 : Idle
+Time 6 : Idle
+Time 7 : P2 arrived
+Time 7 : P2 selected (burst 9)
+Time 16 : P2 finished
+Time 16 : Idle
+Time 17 : Idle
+Time 18 : Idle
+Time 19 : Idle
+Finished at time 20
+P1 wait 0 turnaround 5 response 0
+P2 wait 0 turnaround 9 response 0
+```
+Intended solution:
+```
+  2 processes
+Using First-Come First-Served
+Time   0 : P1 arrived
+Time   0 : P1 selected (burst   5)
+Time   5 : P1 finished
+Time   5 : Idle
+Time   6 : Idle
+Time   7 : P2 arrived
+Time   7 : P2 selected (burst   9)
+Time  16 : P2 finished
+Time  16 : Idle
+Time  17 : Idle
+Time  18 : Idle
+Time  19 : Idle
+Finished at time  20
+
+P1 wait   0 turnaround   5 response   0
+P2 wait   0 turnaround   9 response   0
+```
+
+One last pass for polish.
+* Remember to restore header comments to the simulator functions and add new ones to finalize_metrics, print_summary, and main.
+* Fix round-robin

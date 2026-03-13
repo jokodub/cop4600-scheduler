@@ -1,0 +1,266 @@
+# Engineer Prompt 2 — Scheduling Engine and Code Quality Improvements
+
+You will now **extend the existing `main.rs` implementation**.
+
+Your previous architecture (Process struct, Config struct, Algorithm enum, input parsing) is correct and should be **kept and improved**, not rewritten.
+
+This stage has two goals:
+
+1. **Improve maintainability and commenting quality**
+2. **Implement the scheduling simulation engine**
+
+---
+
+# Part 1 — Code Quality Improvements
+
+Before adding scheduling logic, make the following structural improvements.
+
+## 1. Improve Comments
+
+Comments must explain **WHY something exists**, not simply restate the code.
+
+Bad example:
+
+```
+ // Validate parameters
+```
+
+Better example:
+
+```
+ // Round Robin requires a time quantum to determine how long a process
+ // can run before it is preempted. If the algorithm selected is RR but
+ // no quantum value was provided in the input file, the scheduler
+ // cannot operate correctly, so we terminate with a descriptive error.
+```
+
+Apply this philosophy across the codebase.
+
+Focus especially on:
+
+* Input validation
+* Edge cases
+* Scheduler logic
+* Metric calculations later
+
+---
+
+## 2. Centralize Algorithm Parsing
+
+Currently the algorithm selection logic is embedded in a match inside the parser.
+
+Move this logic into a **dedicated associated function** on the `Algorithm` enum.
+
+Example design:
+
+```
+impl Algorithm {
+    fn from_str(value: &str) -> Result<Self, String>
+}
+```
+
+Responsibilities:
+
+* Convert `"fcfs"`, `"sjf"`, `"rr"` into enum variants
+* Return a descriptive error if invalid
+* Keep all **string → enum logic in one place**
+
+Then update the parser to call this function instead of using a nested match.
+
+---
+
+## 3. Maintain Idiomatic Error Handling
+
+The current use of:
+
+```
+.map_err(|_| "...".to_string())?
+```
+
+is acceptable in Rust.
+
+However:
+
+* Add **comments explaining why errors are mapped**
+* Ensure error messages are meaningful to the user
+
+Do not introduce unwraps.
+
+---
+
+# Part 2 — Simulation Engine
+
+You will now implement the **CPU scheduling simulation framework**.
+
+Create a main simulation loop that advances **one time tick at a time**.
+
+The scheduler must run from:
+
+```
+time = 0
+```
+
+to:
+
+```
+time = run_for
+```
+
+---
+
+# Simulation Requirements
+
+At each time tick:
+
+1. Check if **new processes arrive**
+2. Print arrival events
+3. Determine which process runs
+4. Handle preemption if necessary
+5. Detect when processes finish
+6. Print CPU state (selected or idle)
+
+---
+
+# Output Events
+
+Events must match the specification.
+
+Examples:
+
+```
+Time 0 : A arrived
+Time 0 : A selected (burst 5)
+Time 5 : A finished
+Time 11 : Idle
+```
+
+Whitespace alignment does **not** need to be perfect.
+
+---
+
+# Required Scheduler Functions
+
+Create a **separate function for each scheduling algorithm**.
+
+```
+fn simulate_fcfs(config: &Config) -> Vec<Process>
+fn simulate_sjf(config: &Config) -> Vec<Process>
+fn simulate_rr(config: &Config) -> Vec<Process>
+```
+
+These functions should:
+
+* Simulate the CPU
+* Track process state
+* Update timing metrics
+* Print events
+* Return final process data
+
+Do **not duplicate shared logic unnecessarily**.
+
+---
+
+# Scheduling Rules
+
+## FCFS (FIFO)
+
+* Non-preemptive
+* Execute processes in **arrival order**
+* Once a process starts, it runs until completion
+
+---
+
+## Preemptive SJF (Shortest Remaining Time First)
+
+At each time tick:
+
+* Select the process with the **shortest remaining time**
+* If a newly arrived process has shorter remaining time, **preempt**
+
+---
+
+## Round Robin
+
+Requirements:
+
+* Use the provided **quantum**
+* Preempt when quantum expires
+* Place preempted process at end of ready queue
+
+---
+
+# CPU Idle Behavior
+
+If no process is available to run:
+
+```
+Time X : Idle
+```
+
+must be printed.
+
+---
+
+# Simulation Completion
+
+At the end print:
+
+```
+Finished at time X
+```
+
+Where `X = run_for`.
+
+---
+
+# Do NOT Implement Metrics Yet
+
+Do **not** compute:
+
+* turnaround time
+* waiting time
+* response time
+
+Those will be implemented in the **next stage**.
+
+However, the simulation should **track the information needed to compute them later**.
+
+---
+
+# main() Behavior
+
+After parsing:
+
+1. Print
+
+```
+<number> processes
+Using <algorithm>
+```
+
+If Round Robin:
+
+```
+Quantum <value>
+```
+
+2. Call the correct simulation function.
+
+---
+
+# Code Quality Requirements
+
+Maintain:
+
+* clean function boundaries
+* strong comments
+* minimal duplication
+* readable scheduling logic
+
+Remember: **single file only (`main.rs`)**.
+
+---
+
+# Expected Output
+
+Return the **entire updated `main.rs` file**.

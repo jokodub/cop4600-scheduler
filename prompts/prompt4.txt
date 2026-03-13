@@ -1,0 +1,206 @@
+# Engineer Prompt 4 — Final Refinement Pass
+
+You will **refine the existing `main.rs` implementation**.
+Do **not rewrite the project** and do **not remove working logic**.
+
+This stage focuses on:
+
+1. Fixing the **Algorithm enum design**
+2. Restoring and improving **documentation comments**
+3. Improving **inline reasoning comments**
+4. Minor **code clarity improvements**
+5. Preparing the code as a **final maintainable submission**
+
+---
+
+# Part 1 — Correct the Algorithm Enum API
+
+The previous implementation incorrectly merged `to_str()` and `name()`.
+
+We want **three separate functions** for good serialization practice.
+
+This allows the enum to support:
+
+* parsing
+* serialization
+* human-readable output
+
+## Required API
+
+Implement the following:
+
+```
+impl Algorithm {
+    fn from_str(value: &str) -> Result<Self, String>
+
+    fn to_str(&self) -> &'static str
+
+    fn name(&self) -> &'static str
+}
+```
+
+### Behavior
+
+```
+Algorithm::from_str("fcfs").unwrap().to_str() -> "fcfs"
+Algorithm::from_str("sjf").unwrap().to_str() -> "sjf"
+Algorithm::from_str("rr").unwrap().to_str() -> "rr"
+```
+
+Human readable names:
+
+```
+Algorithm::FCFS.name() -> "First-Come First-Served"
+Algorithm::SJF.name()  -> "preemptive Shortest Job First"
+Algorithm::RR.name()   -> "Round-Robin"
+```
+
+Important principle:
+
+**`from_str()` and `to_str()` must be inverses.**
+
+---
+
+# Part 2 — Improve `output_filename` Documentation
+
+Add a **short inline reasoning comment** explaining why the function has two branches.
+
+Current code:
+
+```
+fn output_filename(input: &str) -> String {
+    if let Some(base) = input.strip_suffix(".in") {
+        format!("{}.out", base)
+    } else {
+        format!("{}.out", input)
+    }
+}
+```
+
+Add a comment explaining:
+
+* why `.in` is removed
+* why the fallback branch exists
+
+Example reasoning:
+
+```
+// Remove the ".in" suffix if it exists so we replace the extension,
+// otherwise simply append ".out" to support unusual filenames.
+```
+
+Do **not change the function logic**.
+
+---
+
+# Part 3 — Restore High-Level Scheduler Comments
+
+Round 2 had useful **header comments above scheduler functions** that explained their overall flow.
+
+These were accidentally removed.
+
+Reintroduce them for:
+
+```
+simulate_fcfs
+simulate_sjf
+simulate_rr
+```
+
+Each header should briefly describe:
+
+* the scheduling policy
+* whether the algorithm is preemptive
+* how the ready queue / selection works
+
+Example idea (not exact wording):
+
+```
+/// Simulates First-Come First-Served scheduling.
+///
+/// Processes are executed in arrival order and once a process begins
+/// executing it runs until completion. A FIFO ready queue is used to
+/// preserve the order that processes enter the system.
+```
+
+---
+
+# Part 4 — Add Missing Inline Reasoning Comments
+
+Some critical logic still lacks comments.
+
+Add **small English explanations** near non-obvious conditions.
+
+Example from `simulate_sjf`:
+
+Current code:
+
+```
+if !candidate_pool.is_empty() && (arrival_event || running.is_none()) {
+```
+
+Add a comment such as:
+
+```
+// If a process is available and either a new process arrived
+// or the CPU became idle, choose the process with the
+// smallest remaining burst time.
+```
+
+Follow the same approach in:
+
+### SJF
+
+Explain:
+
+* candidate pool creation
+* shortest remaining time selection
+* preemption reasoning
+
+### Round Robin
+
+Explain:
+
+* quantum countdown
+* why processes are pushed back to the ready queue
+* how fairness is achieved
+
+---
+
+# Part 5 — Preserve Good FCFS Comments
+
+The FCFS implementation currently has **good inline documentation**.
+
+Use it as a **style reference** for improving SJF and RR.
+
+Do **not remove those comments**.
+
+---
+
+# Part 6 — Minor Cleanup
+
+Ensure:
+
+* no unnecessary unwraps
+* unwraps that remain have a **comment explaining why they are safe**
+* consistent naming style
+* consistent comment tone
+
+---
+
+# Part 7 — Final Quality Check
+
+Before returning the code ensure:
+
+* code compiles
+* logic unchanged from previous correct version
+* comments are **helpful but not excessive**
+* no important header comments are missing
+
+---
+
+# Expected Output
+
+Return the **complete updated `main.rs` file** only.
+
+This should represent the **near-final version of the scheduler implementation**.

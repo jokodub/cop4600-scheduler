@@ -1,0 +1,271 @@
+# Engineer Prompt 3 — Fix SJF Logic, Improve Enum Design, and Implement Metrics
+
+Continue improving the existing `main.rs`. Do **not rewrite the project**. Modify the current implementation.
+
+This stage focuses on:
+
+1. Correcting **Preemptive SJF behavior**
+2. Improving **Algorithm enum design**
+3. Adding **metrics calculation**
+4. Improving **targeted inline comments**
+5. Producing the **final output format required by the assignment**
+
+---
+
+# Part 1 — Improve the Algorithm Enum
+
+The `Algorithm` enum currently has:
+
+* `from_str()`
+* `name()`
+
+We want **better symmetry and better output strings**.
+
+## Required changes
+
+Rename `name()` to:
+
+```
+to_str()
+```
+
+And make `from_str()` and `to_str()` **conceptual inverses**.
+
+Update the output names to match the assignment requirements.
+
+```
+FCFS -> "First-Come First-Served"
+SJF  -> "preemptive Shortest Job First"
+RR   -> "Round-Robin"
+```
+
+Example design:
+
+```
+impl Algorithm {
+    fn from_str(value: &str) -> Result<Self, String>
+    fn to_str(&self) -> &'static str
+}
+```
+
+---
+
+# Part 2 — Improve Targeted Inline Comments
+
+Block comments already exist for functions, which is good.
+
+However **important logic decisions inside functions must be explained**.
+
+Examples of where comments should exist:
+
+### Ready queue insertion
+
+Explain **why** `VecDeque` is used and why:
+
+```
+ready.push_back(process_index)
+```
+
+is used when processes arrive.
+
+Explain that this preserves **arrival ordering**, which is required for FCFS and RR fairness.
+
+---
+
+### Selecting the next process
+
+Explain why the scheduler checks for:
+
+```
+running.is_none()
+```
+
+before choosing a process.
+
+Explain that the CPU only schedules a new process when:
+
+* the CPU was idle
+* the previous process finished
+* a preemption occurs
+
+---
+
+### Burst decrement
+
+Explain why:
+
+```
+remaining_time -= 1
+```
+
+happens once per tick.
+
+Explain that the simulation models **CPU time advancing in discrete ticks**.
+
+---
+
+### Do NOT over-comment
+
+Do not add comments to trivial match statements or obvious code.
+
+Only comment **places where the reasoning may not be obvious to a reader**.
+
+---
+
+# Part 3 — Fix Preemptive SJF
+
+The current SJF implementation has two issues.
+
+### Issue 1 — Incorrect selection timing
+
+Currently it checks the shortest job **every tick**.
+
+Instead the correct logic is:
+
+```
+When:
+  - a new process arrives
+  - the current process finishes
+
+Then:
+  choose the process with the shortest remaining burst time
+  among ALL ready processes INCLUDING the currently running one
+```
+
+This more accurately represents **Shortest Remaining Time First scheduling**.
+
+You may still check every tick internally, but structure the logic so that **selection only happens when an event occurs**.
+
+---
+
+### Issue 2 — Duplicate "selected" printing
+
+Currently the code sets:
+
+```
+running = None
+```
+
+before checking whether the same process continues running.
+
+This causes the "selected" message to always print.
+
+Fix this so that:
+
+* If the **same process continues running**, do **not** print another "selected" message.
+* Only print `"selected"` when the **running process actually changes**.
+
+---
+
+# Part 4 — Metrics Calculation
+
+Now implement the required metrics.
+
+Each process must report:
+
+```
+wait time
+turnaround time
+response time
+```
+
+Definitions:
+
+### Turnaround Time
+
+```
+turnaround = finish_time - arrival_time
+```
+
+---
+
+### Waiting Time
+
+```
+waiting = turnaround - burst_time
+```
+
+---
+
+### Response Time
+
+```
+response = first_start_time - arrival_time
+```
+
+Use the existing fields:
+
+```
+start_time
+finish_time
+```
+
+---
+
+# Part 5 — Final Summary Output
+
+After the simulation finishes, print:
+
+```
+Finished at time X
+```
+
+Then for each process in **original input order** print:
+
+```
+A wait 0 turnaround 5 response 0
+```
+
+If a process did not finish within the runtime:
+
+```
+A did not finish
+```
+
+---
+
+# Part 6 — Round Robin Note
+
+Your current use of:
+
+```
+config.quantum.unwrap()
+```
+
+is acceptable because quantum was validated earlier.
+
+However add a comment explaining **why unwrap is safe in this context**.
+
+---
+
+# Part 7 — Output Header
+
+Ensure the program prints:
+
+```
+<number> processes
+Using <algorithm name>
+```
+
+If Round Robin:
+
+```
+Quantum <value>
+```
+
+---
+
+# Final Requirements
+
+The final result must:
+
+* compile cleanly
+* stay within **one file (`main.rs`)**
+* maintain strong comments
+* follow the simulator specification exactly
+
+---
+
+# Expected Output From You
+
+Return the **complete final `main.rs` source code**.

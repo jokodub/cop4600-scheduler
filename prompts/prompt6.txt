@@ -1,0 +1,208 @@
+# Engineer Prompt 6 — Final Polish and Round-Robin Fix
+
+The scheduler is **very close to final**.
+FCFS and SJF are correct. Most structure and comments are good.
+
+This pass focuses on:
+
+1. **Fixing Round-Robin scheduling order**
+2. **Correcting event ordering**
+3. **Restoring header documentation comments**
+4. **Adding small formatting improvements**
+5. **Minor maintainability improvements**
+
+Do **not rewrite the program**. Only adjust the relevant areas.
+
+---
+
+# Part 1 — Restore Header Documentation Comments
+
+Previous revisions accidentally removed useful **function header comments**.
+
+Restore descriptive headers for the following functions:
+
+```
+simulate_fcfs
+simulate_sjf
+simulate_rr
+finalize_metrics
+print_summary
+main
+```
+
+Each header should explain:
+
+* what the function does
+* its role in the scheduler
+* major behaviors
+
+Example style:
+
+```
+/// Simulates Round-Robin CPU scheduling.
+///
+/// Processes are placed in a FIFO ready queue. Each process is allowed
+/// to run for at most `quantum` time units before being preempted and
+/// returned to the back of the ready queue if it still has remaining work.
+```
+
+Follow the **same documentation style used earlier in FCFS**.
+
+---
+
+# Part 2 — Allow Dead Code for `Algorithm::to_str`
+
+The function is useful for future serialization even if not currently used.
+
+Add:
+
+```
+#[allow(dead_code)]
+```
+
+above:
+
+```
+Algorithm::to_str
+```
+
+Do **not remove the function**.
+
+---
+
+# Part 3 — Round-Robin Event Ordering
+
+Currently events sometimes appear in the wrong order.
+
+Correct behavior at each tick should be:
+
+1. **Print arrivals first**
+2. **Then print finishes**
+3. **Then perform scheduling decisions**
+
+Example correct ordering:
+
+```
+Time X : P4 arrived
+Time X : P3 finished
+Time X : P5 selected (burst 1)
+```
+
+Arrival events must always be printed **before finish events at the same tick**.
+
+---
+
+# Part 4 — Correct Ready Queue Behavior in Round-Robin
+
+Some tests show incorrect process ordering (e.g., selecting P7 before P6).
+
+This typically occurs when:
+
+* a running process is requeued
+* new arrivals occur during the same tick
+* queue insertion order is incorrect
+
+The correct Round-Robin rule is:
+
+```
+When a quantum expires and the process still has remaining burst:
+    push it to the BACK of the ready queue
+```
+
+However:
+
+```
+New arrivals during the same tick
+must be inserted BEFORE the requeued process.
+```
+
+Correct event order should be:
+
+```
+1) arrivals added to ready queue
+2) if running process quantum expired -> requeue it
+3) scheduler selects next process
+```
+
+This ordering ensures fairness and matches the reference solution.
+
+---
+
+# Part 5 — Scheduling After Interrupts
+
+Ensure that when:
+
+```
+quantum expires
+```
+
+the running process:
+
+```
+is requeued AFTER new arrivals
+```
+
+This likely fixes the **P6 vs P7 ordering discrepancy** observed in the tests.
+
+---
+
+# Part 6 — Minor Formatting Improvement
+
+Add a blank line before:
+
+```
+Time 0 : ...
+```
+
+So the header prints as:
+
+```
+X processes
+Using <algorithm>
+Quantum <Q>   (if RR)
+
+Time 0 : ...
+```
+
+Also add a blank line before the summary section:
+
+```
+Finished at time X
+
+P1 wait ...
+P2 wait ...
+```
+
+Do **not implement right-justified formatting**. It is not required.
+
+---
+
+# Part 7 — Maintain Existing Correct Logic
+
+Do **not change**:
+
+* FCFS implementation
+* SJF implementation
+* metric calculations
+* event formatting
+* simulation loop structure
+
+Only adjust **Round-Robin ordering and comments**.
+
+---
+
+# Final Checklist
+
+Before returning the code ensure:
+
+* Round-Robin ordering matches expected solutions
+* header comments restored
+* `#[allow(dead_code)]` added to `Algorithm::to_str`
+* blank lines added in output sections
+* program still compiles cleanly
+
+---
+
+# Expected Output
+
+Return the **final `main.rs` source file**.

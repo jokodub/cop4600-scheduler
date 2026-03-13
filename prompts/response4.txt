@@ -1,0 +1,6 @@
+Almost perfect. Comments are strewn about in a good amount. 
+
+Only thing left is to actually use the output file. The output is still printed to console.
+I ran one test on it, and it seems to be correct for FCFS. More tests will follow in future versions.
+
+You are good to move on to the next stage.

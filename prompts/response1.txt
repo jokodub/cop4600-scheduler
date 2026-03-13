@@ -1,0 +1,56 @@
+The engineer made a good outline in accordance with your prompt! This is exactly what we love to see.
+
+It created structs for Process and Config, and an enum for Algorithm. This is highly modular and allows us to add extra arguments or more algorithms later.
+
+It uses a match statement to parse the input line-by-line which also supports adding more arguments.
+
+It checks that all necessary parameters are in place with an Ok() wrapper.
+
+One criticism is that its comments are lacking. For example: 
+```
+// Validate required parameters
+let process_count =
+    process_count.ok_or_else(|| "Error: Missing parameter processcount.".to_string())?;
+
+let run_for = run_for.ok_or_else(|| "Error: Missing parameter runfor.".to_string())?;
+
+let algorithm =
+    algorithm.ok_or_else(|| "Error: Missing parameter use.".to_string())?;
+
+if matches!(algorithm, Algorithm::RR) && quantum.is_none() {
+    return Err("Error: Missing quantum parameter when use is 'rr'".to_string());
+}
+```
+This should have at least an additional comment explaining the extra condition with Round Robin instead of the obvious "Validate parameters exist". Add the reasoning to the comments, you can tell the engineer the purpose of different pieces so it can make better comments. 
+
+It's up to you if this is idiomatic error handling inside a match-and-parse block.
+```
+                if tokens.len() >= 2 {
+                    process_count = Some(
+                        tokens[1]
+                            .parse::<usize>()
+                            .map_err(|_| "Invalid processcount value".to_string())?,
+                    );
+                }
+```
+They use this .map_err(|_| "Error message here".to_string())? a lot.
+
+Another is its implementation of the "use" instruction when determining which algorithm to use. 
+It uses a match statement which creates an enum for each individual algorithm. It would be better if this was implemented in a function that coupled to the enum to keep the logic in one place instead of obscured inside a nested match to be maintained later.
+```
+
+            "use" => {
+                if tokens.len() >= 2 {
+                    algorithm = match tokens[1] {
+                        "fcfs" => Some(Algorithm::FCFS),
+                        "sjf" => Some(Algorithm::SJF),
+                        "rr" => Some(Algorithm::RR),
+                        _ => return Err("Invalid scheduling algorithm".to_string()),
+                    };
+                }
+            }
+```
+
+You're good to head on to the next stage. Be sure to emphasize:
+* Advanced commenting, explain the reason for out-of-place blocks, don't just summarize.
+* Couple logic in neat places, don't splinter enum<->str logic in three places.

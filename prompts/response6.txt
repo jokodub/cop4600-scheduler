@@ -1,0 +1,8 @@
+It did not reorder the logic so that arrivals happen before finishes.
+It happens because although the new arrivals is at the top of the for loop, when a process finishes at the end of the loop it is printed with time+1. 
+This check should be moved to the second of the loop, below new arrivals and before the next checks.
+
+Make the **exact same change to the other two algorithms**.
+
+Also, the engineer consistently forgets to comment. Wherever you tell it to comment, it deletes comments from everywhere else. Emphasize this will be the last iteration, and if it fails the human will be forced to step in and comment themselves.
+

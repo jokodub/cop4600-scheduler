@@ -1,0 +1,89 @@
+
+Comments are much better now, but still not perfect. Most classes and functions have a block header, good. But the logic within is still not described. For example:
+```
+/// Convert an input filename such as `example.in` to `example.out`.
+///
+/// The simulator specification expects the output filename to mirror
+/// the input filename with only the extension changed.
+fn output_filename(input: &str) -> String {
+    if let Some(base) = input.strip_suffix(".in") {
+        format!("{}.out", base)
+    } else {
+        format!("{}.out", input)
+    }
+}
+```
+I would put a top-of-line comment describing why there are two possible branches, like:
+```
+/// Convert an input filename such as `example.in` to `example.out`.
+///
+/// The simulator specification expects the output filename to mirror
+/// the input filename with only the extension changed.
+fn output_filename(input: &str) -> String {
+    // Remove the ".in" suffix if it exists, else simply append ".out".
+    if let Some(base) = input.strip_suffix(".in") {
+        format!("{}.out", base)
+    } else {
+        format!("{}.out", input)
+    }
+}
+```
+However, for very simple functions like from_str or every match statement do not need this extra comment. Just places where we need a reason for performing extra computation. Don't overly comment the obvious.
+It wrote this comment in the parse_input function that is exactly what I like to see:
+```
+            "process" => {
+                // Format:
+                // process name <string> arrival <int> burst <int>
+                let name = tokens[2].to_string();
+                let arrival = tokens[4]
+                    .parse::<u32>()
+                    .map_err(|_| "Invalid arrival time".to_string())?;
+                let burst = tokens[6]
+                    .parse::<u32>()
+                    .map_err(|_| "Invalid burst time".to_string())?;
+```
+
+Although you asked it to never use unwrap, it did with RR. This is fine since quantum was already validated, but to note.
+```
+    let quantum = config.quantum.unwrap();
+```
+
+The string method is now coupled to the Algorithm enum, good. But it would be best if from_str and name (rename to to_str) were inverses. This allows for easier serialization of data; to be written as and created from strings.
+```
+impl Algorithm {
+    /// Convert a string from the input file into an Algorithm enum.
+    ///
+    /// Centralizing this conversion avoids scattering string comparisons
+    /// throughout the parser and ensures that any future algorithms are
+    /// added in a single, maintainable location.
+    fn from_str(value: &str) -> Result<Self, String> {
+        match value {
+            "fcfs" => Ok(Algorithm::FCFS),
+            "sjf" => Ok(Algorithm::SJF),
+            "rr" => Ok(Algorithm::RR),
+            _ => Err(format!("Invalid scheduling algorithm '{}'", value)),
+        }
+    }
+
+    fn name(&self) -> &'static str {
+        match self {
+            Algorithm::FCFS => "FCFS",
+            Algorithm::SJF => "SJF",
+            Algorithm::RR => "RR",
+        }
+    }
+}
+```
+You should also change the current name function. The output requires the full name of the algorithm to be printed, not its abbreviation. Please implement the following:
+- FCFS: "First-Come First-Served"
+- SJF: "preemptive Shortest Job First"
+- RR: "Round-Robin"
+
+
+For its implementation of the schedulers:
+FCFS seems to be logically sound, but there is no comments. Add some that explain why ready.push_back is used to enqueue the tasks in the order they arrive, how it selects the next task when nothing is running, and how it decremements the time on the running process until it is finished.
+SJF seems to be flawed. It tries to avoid reprinting the "selected" text if the current process is reselected, but it sets running to None before that check meaning it always prints.
+SJF is also implemented incorrectly. It should be handled like: "When a new process arrives or finishes, choose the process with the shortest remaining burst time, including the current process." Although it is impossible for a process to be shorter other than a new arrival (because it already selected the smallest), the code's logic instead checks for the smallest every tick. While it produces the same output, it does not follow the same logical flow.
+RR seems to be implemented correctly, but again more in-line comments would be nice.
+
+You are good to head on to the next stage.

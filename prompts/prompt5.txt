@@ -1,0 +1,152 @@
+# Engineer Prompt 5 — Redirect Output to `.out` File
+
+The scheduler implementation is now nearly complete and working correctly.
+The remaining task is to ensure the program **writes its output to the correct `.out` file instead of printing to the console**.
+
+Do **not rewrite working scheduling logic**. This change should be **minimal and safe**.
+
+---
+
+# Part 1 — Create the Output File
+
+After parsing the input file, determine the output filename using the existing helper:
+
+```
+output_filename(input)
+```
+
+Then create the output file using standard Rust file APIs.
+
+Example design approach:
+
+* Use `std::fs::File`
+* Wrap it in `std::io::BufWriter` for efficient writing
+
+Example structure:
+
+```
+let file = File::create(output_path)?;
+let mut writer = BufWriter::new(file);
+```
+
+---
+
+# Part 2 — Replace `println!` With File Writing
+
+All scheduler output should be written to the `.out` file instead of the console.
+
+Recommended approach:
+
+Use:
+
+```
+writeln!(writer, "text here")?;
+```
+
+instead of:
+
+```
+println!("text here");
+```
+
+This allows writing formatted lines directly into the output file.
+
+---
+
+# Part 3 — Pass the Writer to Simulation Functions
+
+The scheduler functions currently print events internally.
+
+Update their signatures so they **receive a mutable writer reference**.
+
+Example:
+
+```
+fn simulate_fcfs(config: &Config, writer: &mut impl Write) -> Vec<Process>
+fn simulate_sjf(config: &Config, writer: &mut impl Write) -> Vec<Process>
+fn simulate_rr(config: &Config, writer: &mut impl Write) -> Vec<Process>
+```
+
+Using `impl Write` keeps the functions flexible and idiomatic.
+
+Inside those functions replace all printing with:
+
+```
+writeln!(writer, ...)
+```
+
+---
+
+# Part 4 — Update Summary Output
+
+The final summary and statistics must also be written to the same output file.
+
+Ensure the following sections are written using the writer:
+
+```
+<number> processes
+Using <algorithm name>
+Quantum <value>   (if RR)
+
+Time X : ...
+Finished at time X
+
+<process metrics summary>
+```
+
+---
+
+# Part 5 — Error Handling
+
+Use proper error propagation where possible.
+
+Examples:
+
+```
+use std::io::{Write, BufWriter};
+```
+
+Return errors if writing fails instead of silently ignoring them.
+
+---
+
+# Part 6 — Keep Console Output Minimal
+
+The simulator specification expects output in the `.out` file.
+
+Therefore:
+
+* **Do not print scheduling events to stdout**
+* Only fatal errors may appear on stderr if necessary
+
+---
+
+# Part 7 — Comment the Change
+
+Add a brief comment explaining **why a buffered writer is used**.
+
+Example reasoning:
+
+* writing many small lines
+* improves I/O performance
+* centralizes output destination
+
+---
+
+# Final Constraints
+
+Do **not**:
+
+* change scheduler logic
+* change event formatting
+* restructure working code unnecessarily
+
+The goal is simply to **redirect all simulator output to the correct `.out` file**.
+
+---
+
+# Expected Output
+
+Return the **complete final `main.rs` source file** with file-based output implemented.
+
+This should represent the **fully working scheduler implementation**.

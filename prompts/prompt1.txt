@@ -1,0 +1,195 @@
+# Engineer Prompt 1 — Architecture and Data Structures (NO scheduling yet)
+
+You are implementing a **process scheduler simulator in Rust**.
+
+The final submission must be **a single file named `main.rs`**, but the code must still be **well structured internally using modules, structs, and functions**.
+
+At this stage **DO NOT implement the scheduling algorithms yet**. We are only building the **core architecture and input parsing** so the rest of the implementation stays clean and maintainable.
+
+## Requirements
+
+Implement the following components:
+
+### 1. Process Data Structure
+
+Create a struct representing a process.
+
+Required fields:
+
+* `name: String`
+* `arrival_time: u32`
+* `burst_time: u32`
+* `remaining_time: u32`
+
+Metrics fields (initialize appropriately):
+
+* `start_time: Option<u32>` (for response time)
+* `finish_time: Option<u32>`
+* `wait_time: u32`
+* `turnaround_time: u32`
+* `response_time: Option<u32>`
+
+These will be used later by the scheduler.
+
+---
+
+### 2. Scheduler Algorithm Enum
+
+Create an enum to represent which scheduling algorithm is selected.
+
+Variants:
+
+```
+FCFS
+SJF
+RR
+```
+
+---
+
+### 3. Configuration Struct
+
+Create a struct representing the parsed input file configuration.
+
+Fields:
+
+```
+process_count: usize
+run_for: u32
+algorithm: Algorithm
+quantum: Option<u32>
+processes: Vec<Process>
+```
+
+---
+
+### 4. Input Parsing
+
+Implement a function:
+
+```
+fn parse_input(filename: &str) -> Result<Config, String>
+```
+
+Responsibilities:
+
+* Open and read the input file
+* Parse directives
+* Validate parameters
+* Build the `Config` struct
+
+Supported directives:
+
+```
+processcount <int>
+runfor <int>
+use <fcfs|sjf|rr>
+quantum <int>
+process name <string> arrival <int> burst <int>
+end
+```
+
+---
+
+### 5. Input Validation
+
+Handle the following errors EXACTLY as specified.
+
+If required parameters are missing:
+
+```
+Error: Missing parameter <parameter>.
+```
+
+If algorithm is `rr` but no quantum provided:
+
+```
+Error: Missing quantum parameter when use is 'rr'
+```
+
+If the program is run without an argument:
+
+```
+Usage: scheduler-gpt <input file>
+```
+
+---
+
+### 6. CLI Argument Handling
+
+Program should be executed as:
+
+```
+scheduler-gpt inputFile.in
+```
+
+Implementation requirements:
+
+* Accept **exactly one command-line argument**
+* Treat it as the input filename
+* If missing, print the usage message and exit
+
+---
+
+### 7. Output Filename
+
+Implement a helper function:
+
+```
+fn output_filename(input: &str) -> String
+```
+
+Example:
+
+```
+inputFile.in -> inputFile.out
+```
+
+---
+
+### 8. Code Quality Requirements
+
+Your Rust code must:
+
+* Be **well commented**
+* Use **idiomatic Rust**
+* Use **clear function separation**
+* Avoid unnecessary cloning
+* Avoid unwraps where possible
+* Use `Result` for error propagation
+
+---
+
+### 9. main()
+
+The `main()` function should:
+
+1. Parse command-line arguments
+2. Call `parse_input`
+3. Print a **debug summary** to confirm parsing works
+
+Example debug output (temporary):
+
+```
+3 processes
+Algorithm: SJF
+Run for: 20
+Processes loaded: 3
+```
+
+This debug output will be removed later.
+
+---
+
+### Important Constraints
+
+* **Single file only: `main.rs`**
+* Do **NOT** implement scheduling yet
+* Do **NOT** implement metrics yet
+* Focus entirely on **correct parsing and architecture**
+
+---
+
+### Expected Output From You
+
+Return **only the full `main.rs` source code**.

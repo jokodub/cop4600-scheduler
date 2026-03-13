@@ -1,0 +1,30 @@
+Algorithm's from_str and to_str functions should be symmetric. There should be a third function, name, which prints the full name of the algorithm.
+The engineer (and you) conflated to_str and name into the same function, breaking the inverse property.
+All three functions are not required for the program to run, but they are good practice for when this code is revisited to not have to implement them later.
+Algorithm::from_str("fcfs").to_str() -> "fcfs"
+algorithm.name() -> "First-Come First-Served"
+
+It did not implement the suggested comment for output_filename regarding the if statement with seemingly same internals:
+```
+/// Convert `input.in` into `input.out`.
+fn output_filename(input: &str) -> String {
+    if let Some(base) = input.strip_suffix(".in") {
+        format!("{}.out", base)
+    } else {
+        format!("{}.out", input)
+    }
+}
+```
+
+It took "Do not add comments to trivial match statements or obvious code." too seriously. It has removed useful header comments that were present in Round 2, such as above each simulate_xx function that described the basic flow. Re-add them. 
+FCFS has good comments. Mimic it across the rest of the project. But SJF and RR have no comments still, fix that.
+For example, from simulate_sjf, this should have a small comment that explains the statement in English:
+```
+        if !candidate_pool.is_empty() && (arrival_event || running.is_none()) {
+```
+// If there is a process available and one just arrived or we are idle, select the process with shortest burst.
+
+SJF seems to implemented correctly, great!
+print_summary is also correct.
+
+You are good to move on to the next stage, we are getting close.
